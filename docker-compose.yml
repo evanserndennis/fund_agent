@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: fund-agent-db
+    environment:
+      POSTGRES_USER: fund_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: fund_agent
+    ports:
+      - "5432:5432"
+    volumes:
+      - fund_agent_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  fund_agent_data:
