@@ -59,8 +59,8 @@ def _insert_investors(insertion_payload, cur):
             investor['type'],
             investor['tax_id'],
             investor['kyc_status'],
-            json.dumps(investor['banking_ref']),   # dict → JSON string
-            json.dumps(investor['contact']),       # dict → JSON string
+            json.dumps(investor['banking_ref']),
+            json.dumps(investor['contact']),
         )
         rows.append(row)
 
@@ -69,3 +69,4 @@ def _insert_investors(insertion_payload, cur):
             (id, legal_name, type, tax_id, kyc_status, banking_ref, contact)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, rows)
+    
