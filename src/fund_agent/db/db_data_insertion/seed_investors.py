@@ -33,6 +33,7 @@ def seed_investors(cur):
     for investor in LP_NAMES:
         insertion_payload.append(_seed_lp(investor[0], investor[1]))
     _insert_investors(insertion_payload, cur)
+    return insertion_payload
     
 
 def _seed_lp(investor_name: str, investor_type: str) -> dict:
@@ -69,4 +70,3 @@ def _insert_investors(insertion_payload, cur):
             (id, legal_name, type, tax_id, kyc_status, banking_ref, contact)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, rows)
-    
