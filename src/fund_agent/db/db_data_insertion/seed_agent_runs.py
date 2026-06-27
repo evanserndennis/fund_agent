@@ -3,6 +3,7 @@ import random
 from datetime import date
 
 from seed_helper import uid, d
+from fund_agent.models.agent_run import AgentRun
 
 
 RUN_DATES = [
@@ -17,7 +18,7 @@ TOTAL_COMMITTED = 201_800_000
 MODEL_VERSION = "claude-opus-4"
 
 
-def seed_agent_runs(cur) -> list[dict]:
+def seed_agent_runs(cur) -> list[AgentRun]:
     runs = []
     for run_date in RUN_DATES:
         runs.append(_run_builder(run_date))
@@ -25,7 +26,7 @@ def seed_agent_runs(cur) -> list[dict]:
     return runs
 
 
-def _run_builder(run_date: date) -> dict:
+def _run_builder(run_date: date) -> AgentRun:
     # NOTE: random calls stay in this order (cash, pipeline, trigger, confidence)
     # so the orchestrator's random.seed(...) reproduces the same data each run.
     cash = random.randint(5_000_000, 25_000_000)
@@ -33,26 +34,26 @@ def _run_builder(run_date: date) -> dict:
     trigger = random.choice(["scheduled", "manual"])
     confidence = d(random.uniform(0.80, 0.97))
 
-    return {
-        "id": uid(),
-        "trigger": trigger,
-        "started_at": f"{run_date}T09:00:00+00:00",
-        "inputs_snapshot": {
+    return AgentRun(
+        id=uid(),
+        trigger=trigger,
+        started_at=f"{run_date}T09:00:00+00:00",
+        inputs_snapshot={
             "cash_balance": cash,
             "pipeline_obligations": pipeline,
             "reserve_requirement": RESERVE_REQUIREMENT,
             "total_committed": TOTAL_COMMITTED,
         },
-        "rationale": {
+        rationale={
             "analysis": f"Cash ${cash:,} vs pipeline ${pipeline:,}",
             "recommendation": "capital_call" if pipeline > cash else "no_action",
         },
-        "confidence": confidence,
-        "model_version": MODEL_VERSION,
-    }
+        confidence=confidence,
+        model_version=MODEL_VERSION,
+    )
 
 
-def _insert_runs(cur, runs: list[dict]) -> None:
+def _insert_runs(cur, runs: list[AgentRun]) -> None:
     cur.executemany(
         """
         INSERT INTO agent_runs
@@ -62,8 +63,9 @@ def _insert_runs(cur, runs: list[dict]) -> None:
         """,
         [
             (
-                r["id"], r["trigger"], r["started_at"], json.dumps(r["inputs_snapshot"]),
-                json.dumps(r["rationale"]), r["confidence"], r["model_version"],
+                r.id, r.trigger, r.started_at,
+                json.dumps(r.inputs_snapshot), json.dumps(r.rationale),
+                r.confidence, r.model_version,
             )
             for r in runs
         ],

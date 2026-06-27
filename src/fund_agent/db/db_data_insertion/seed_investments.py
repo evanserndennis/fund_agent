@@ -1,4 +1,5 @@
 from seed_helper import uid, d
+from fund_agent.models.investment import Investment
 
 
 # (company_name, invested_amount, current_value, realized_proceeds, status)
@@ -16,7 +17,7 @@ PORTFOLIO = [
 ]
 
 
-def seed_investments(cur, fund_id) -> list[dict]:
+def seed_investments(cur, fund_id) -> list[Investment]:
     investments = []
     for company, invested, current, realized, status in PORTFOLIO:
         investments.append(_investment_builder(fund_id, company, invested, current, realized, status))
@@ -31,19 +32,19 @@ def _investment_builder(
     current: int,
     realized: int,
     status: str,
-) -> dict:
-    return {
-        "id": uid(),
-        "fund_id": fund_id,
-        "company_name": company,
-        "invested_amount": d(invested),
-        "current_value": d(current) if current else None,
-        "realized_proceeds": d(realized),
-        "status": status,
-    }
+) -> Investment:
+    return Investment(
+        id=uid(),
+        fund_id=fund_id,
+        company_name=company,
+        invested_amount=d(invested),
+        current_value=d(current) if current else None,
+        realized_proceeds=d(realized),
+        status=status,
+    )
 
 
-def _insert_investments(cur, investments: list[dict]) -> None:
+def _insert_investments(cur, investments: list[Investment]) -> None:
     cur.executemany(
         """
         INSERT INTO investments
@@ -53,8 +54,8 @@ def _insert_investments(cur, investments: list[dict]) -> None:
         """,
         [
             (
-                inv["id"], inv["fund_id"], inv["company_name"], inv["invested_amount"],
-                inv["current_value"], inv["realized_proceeds"], inv["status"],
+                inv.id, inv.fund_id, inv.company_name, inv.invested_amount,
+                inv.current_value, inv.realized_proceeds, inv.status,
             )
             for inv in investments
         ],

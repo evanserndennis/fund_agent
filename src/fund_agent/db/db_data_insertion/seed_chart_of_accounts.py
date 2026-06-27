@@ -1,4 +1,5 @@
 from seed_helper import uid
+from fund_agent.models.chart_of_accounts import ChartOfAccounts
 
 
 # (account_code, account_name, account_type, normal_balance)
@@ -21,7 +22,7 @@ COA_DEF = [
 ]
 
 
-def seed_chart_of_accounts(cur) -> list[dict]:
+def seed_chart_of_accounts(cur) -> list[ChartOfAccounts]:
     accounts = []
     for code, name, account_type, normal_balance in COA_DEF:
         accounts.append(_account_builder(code, name, account_type, normal_balance))
@@ -29,17 +30,17 @@ def seed_chart_of_accounts(cur) -> list[dict]:
     return accounts
 
 
-def _account_builder(code: str, name: str, account_type: str, normal_balance: str) -> dict:
-    return {
-        "id": uid(),
-        "account_code": code,
-        "account_name": name,
-        "account_type": account_type,
-        "normal_balance": normal_balance,
-    }
+def _account_builder(code: str, name: str, account_type: str, normal_balance: str) -> ChartOfAccounts:
+    return ChartOfAccounts(
+        id=uid(),
+        account_code=code,
+        account_name=name,
+        account_type=account_type,
+        normal_balance=normal_balance,
+    )
 
 
-def _insert_accounts(cur, accounts: list[dict]) -> None:
+def _insert_accounts(cur, accounts: list[ChartOfAccounts]) -> None:
     cur.executemany(
         """
         INSERT INTO chart_of_accounts
@@ -47,7 +48,7 @@ def _insert_accounts(cur, accounts: list[dict]) -> None:
         VALUES (%s, %s, %s, %s, %s)
         """,
         [
-            (a["id"], a["account_code"], a["account_name"], a["account_type"], a["normal_balance"])
+            (a.id, a.account_code, a.account_name, a.account_type, a.normal_balance)
             for a in accounts
         ],
     )

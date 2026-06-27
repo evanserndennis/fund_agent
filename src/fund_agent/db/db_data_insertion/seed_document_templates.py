@@ -1,4 +1,5 @@
 from seed_helper import uid
+from fund_agent.models.document_template import DocumentTemplate
 
 
 # (doc_type, version, body)
@@ -18,7 +19,7 @@ DOC_TEMPLATE_DEF = [
 ]
 
 
-def seed_document_templates(cur) -> list[dict]:
+def seed_document_templates(cur) -> list[DocumentTemplate]:
     templates = []
     for doc_type, version, body in DOC_TEMPLATE_DEF:
         templates.append(_template_builder(doc_type, version, body))
@@ -26,23 +27,20 @@ def seed_document_templates(cur) -> list[dict]:
     return templates
 
 
-def _template_builder(doc_type: str, version: int, body: str) -> dict:
-    return {
-        "id": uid(),
-        "doc_type": doc_type,
-        "version": version,
-        "body": body,
-    }
+def _template_builder(doc_type: str, version: int, body: str) -> DocumentTemplate:
+    return DocumentTemplate(
+        id=uid(),
+        doc_type=doc_type,
+        version=version,
+        body=body,
+    )
 
 
-def _insert_templates(cur, templates: list[dict]) -> None:
+def _insert_templates(cur, templates: list[DocumentTemplate]) -> None:
     cur.executemany(
         """
         INSERT INTO document_templates (id, doc_type, version, body)
         VALUES (%s, %s, %s, %s)
         """,
-        [
-            (t["id"], t["doc_type"], t["version"], t["body"])
-            for t in templates
-        ],
+        [(t.id, t.doc_type, t.version, t.body) for t in templates],
     )

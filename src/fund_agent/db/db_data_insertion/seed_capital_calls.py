@@ -1,6 +1,8 @@
 from datetime import date
 
 from seed_helper import uid, d
+from fund_agent.models.capital_call import CapitalCall
+from fund_agent.models.agent_run import AgentRun
 
 
 # (call_date, due_date, total_amount, purpose, agent_run_index)
@@ -18,12 +20,12 @@ CALL_DEF = [
 ]
 
 
-def seed_capital_calls(cur, fund_id, agent_runs) -> list[dict]:
+def seed_capital_calls(cur, fund_id, agent_runs: list[AgentRun]) -> list[CapitalCall]:
     calls = []
     for i, (call_date, due_date, total, purpose, run_idx) in enumerate(CALL_DEF):
         calls.append(_call_builder(
             fund_id=fund_id,
-            agent_run_id=agent_runs[run_idx]["id"],
+            agent_run_id=agent_runs[run_idx].id,
             call_number=i + 1,
             call_date=call_date,
             due_date=due_date,
@@ -42,21 +44,21 @@ def _call_builder(
     due_date: date,
     total: int,
     purpose: str,
-) -> dict:
-    return {
-        "id": uid(),
-        "fund_id": fund_id,
-        "agent_run_id": agent_run_id,
-        "call_number": call_number,
-        "call_date": call_date,
-        "due_date": due_date,
-        "total_amount": d(total),
-        "purpose": purpose,
-        "status": "funded",
-    }
+) -> CapitalCall:
+    return CapitalCall(
+        id=uid(),
+        fund_id=fund_id,
+        agent_run_id=agent_run_id,
+        call_number=call_number,
+        call_date=call_date,
+        due_date=due_date,
+        total_amount=d(total),
+        purpose=purpose,
+        status="funded",
+    )
 
 
-def _insert_calls(cur, calls: list[dict]) -> None:
+def _insert_calls(cur, calls: list[CapitalCall]) -> None:
     cur.executemany(
         """
         INSERT INTO capital_calls
@@ -66,8 +68,8 @@ def _insert_calls(cur, calls: list[dict]) -> None:
         """,
         [
             (
-                c["id"], c["fund_id"], c["agent_run_id"], c["call_number"],
-                c["call_date"], c["due_date"], c["total_amount"], c["purpose"], c["status"],
+                c.id, c.fund_id, c.agent_run_id, c.call_number,
+                c.call_date, c.due_date, c.total_amount, c.purpose, c.status,
             )
             for c in calls
         ],

@@ -1,11 +1,20 @@
 from seed_helper import uid, d
+from fund_agent.models.distribution_allocation import DistributionAllocation
+from fund_agent.models.investor import Investor
+from fund_agent.models.commitment import Commitment
+from fund_agent.models.distribution import Distribution
 
 
-def seed_distribution_allocations(cur, distributions, investors, commitments) -> list[dict]:
+def seed_distribution_allocations(
+    cur,
+    distributions: list[Distribution],
+    investors: list[Investor],
+    commitments: list[Commitment],
+) -> list[DistributionAllocation]:
     # Each LP's pro-rata share is computed once, from LP commitments only (the GP is excluded).
-    lp_investors = [inv for inv in investors if inv["type"] != "GP"]
-    commitment_by_investor = {c["investor_id"]: c["commitment_amount"] for c in commitments}
-    lp_amounts = [commitment_by_investor[inv["id"]] for inv in lp_investors]
+    lp_investors = [inv for inv in investors if inv.type != "GP"]
+    commitment_by_investor = {c.investor_id: c.commitment_amount for c in commitments}
+    lp_amounts = [commitment_by_investor[inv.id] for inv in lp_investors]
     total_lp_commit = sum(lp_amounts)
     basis_pcts = [d(amt / total_lp_commit) for amt in lp_amounts]
 
@@ -13,11 +22,11 @@ def seed_distribution_allocations(cur, distributions, investors, commitments) ->
     for dist in distributions:
         for lp, basis_pct in zip(lp_investors, basis_pcts):
             allocations.append(_allocation_builder(
-                distribution_id=dist["id"],
-                investor_id=lp["id"],
+                distribution_id=dist.id,
+                investor_id=lp.id,
                 basis_pct=basis_pct,
-                dist_total=dist["total_amount"],
-                dist_type=dist["type"],
+                dist_total=dist.total_amount,
+                dist_type=dist.type,
             ))
 
     _insert_allocations(cur, allocations)
@@ -30,7 +39,7 @@ def _allocation_builder(
     basis_pct,
     dist_total,
     dist_type: str,
-) -> dict:
+) -> DistributionAllocation:
     lp_total = d(float(dist_total) * float(basis_pct))
 
     # Waterfall split: how the LP's slice divides depends on the distribution type.
@@ -47,19 +56,19 @@ def _allocation_builder(
         profit = d(float(lp_total) * 0.50)
         carry  = d(float(lp_total) * 0.20)
 
-    return {
-        "id": uid(),
-        "distribution_id": distribution_id,
-        "investor_id": investor_id,
-        "return_of_capital": roc,
-        "pref_return": pref,
-        "profit": profit,
-        "gp_carry": carry,
-        "total": lp_total,
-    }
+    return DistributionAllocation(
+        id=uid(),
+        distribution_id=distribution_id,
+        investor_id=investor_id,
+        return_of_capital=roc,
+        pref_return=pref,
+        profit=profit,
+        gp_carry=carry,
+        total=lp_total,
+    )
 
 
-def _insert_allocations(cur, allocations: list[dict]) -> None:
+def _insert_allocations(cur, allocations: list[DistributionAllocation]) -> None:
     cur.executemany(
         """
         INSERT INTO distribution_allocations
@@ -69,8 +78,8 @@ def _insert_allocations(cur, allocations: list[dict]) -> None:
         """,
         [
             (
-                a["id"], a["distribution_id"], a["investor_id"],
-                a["return_of_capital"], a["pref_return"], a["profit"], a["gp_carry"], a["total"],
+                a.id, a.distribution_id, a.investor_id,
+                a.return_of_capital, a.pref_return, a.profit, a.gp_carry, a.total,
             )
             for a in allocations
         ],
