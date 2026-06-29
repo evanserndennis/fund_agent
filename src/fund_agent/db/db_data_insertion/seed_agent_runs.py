@@ -3,7 +3,7 @@ import random
 from datetime import date
 
 from seed_helper import uid, d
-from fund_agent.models.agent_run import AgentRun
+from fund_agent.models import AgentRun
 
 
 RUN_DATES = [

@@ -1,7 +1,5 @@
 from seed_helper import uid
-from fund_agent.models.approval import Approval
-from fund_agent.models.capital_call import CapitalCall
-from fund_agent.models.distribution import Distribution
+from fund_agent.models import Approval, CapitalCall, Distribution
 
 
 CALL_COMMENT = "Reviewed and approved per investment committee authorization."

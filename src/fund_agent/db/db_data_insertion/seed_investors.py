@@ -1,7 +1,7 @@
 import random
 import json
 from seed_helper import uid
-from fund_agent.models.investor import Investor
+from fund_agent.models import Investor
 
 
 GP = Investor(

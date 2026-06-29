@@ -1,8 +1,5 @@
 from seed_helper import uid, d
-from fund_agent.models.distribution_allocation import DistributionAllocation
-from fund_agent.models.investor import Investor
-from fund_agent.models.commitment import Commitment
-from fund_agent.models.distribution import Distribution
+from fund_agent.models import DistributionAllocation, Investor, Commitment, Distribution
 
 
 def seed_distribution_allocations(

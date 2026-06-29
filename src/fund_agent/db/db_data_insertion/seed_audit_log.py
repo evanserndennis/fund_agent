@@ -1,9 +1,7 @@
 import json
 
 from seed_helper import uid
-from fund_agent.models.audit_log import AuditLog
-from fund_agent.models.capital_call import CapitalCall
-from fund_agent.models.distribution import Distribution
+from fund_agent.models import AuditLog, CapitalCall, Distribution
 
 
 def seed_audit_log(cur, capital_calls: list[CapitalCall], distributions: list[Distribution]) -> list[AuditLog]:

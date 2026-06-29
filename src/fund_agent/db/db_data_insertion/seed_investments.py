@@ -1,5 +1,5 @@
 from seed_helper import uid, d
-from fund_agent.models.investment import Investment
+from fund_agent.models import Investment
 
 
 # (company_name, invested_amount, current_value, realized_proceeds, status)

@@ -1,9 +1,5 @@
 from seed_helper import uid
-from fund_agent.models.generated_document import GeneratedDocument
-from fund_agent.models.document_template import DocumentTemplate
-from fund_agent.models.capital_call import CapitalCall
-from fund_agent.models.distribution import Distribution
-from fund_agent.models.investor import Investor
+from fund_agent.models import GeneratedDocument, DocumentTemplate, CapitalCall, Distribution, Investor
 
 
 CALL_NOTICE_COUNT = 3  # call notices are only generated for the first 3 capital calls

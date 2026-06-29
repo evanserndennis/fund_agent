@@ -1,5 +1,5 @@
 from seed_helper import uid
-from fund_agent.models.chart_of_accounts import ChartOfAccounts
+from fund_agent.models import ChartOfAccounts
 
 
 # (account_code, account_name, account_type, normal_balance)

@@ -1,6 +1,6 @@
 from seed_helper import uid
 from datetime import date
-from fund_agent.models.closing import Closing
+from fund_agent.models import Closing
 
 
 CLOSING_DATES = [

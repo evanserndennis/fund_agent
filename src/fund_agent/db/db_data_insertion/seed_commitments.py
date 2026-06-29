@@ -1,8 +1,6 @@
 from decimal import Decimal
 from seed_helper import uid
-from fund_agent.models.commitment import Commitment
-from fund_agent.models.investor import Investor
-from fund_agent.models.closing import Closing
+from fund_agent.models import Commitment, Investor, Closing
 
 
 LP_COMMITMENT_AMOUNTS = [

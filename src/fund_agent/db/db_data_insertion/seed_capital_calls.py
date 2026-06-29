@@ -1,8 +1,7 @@
 from datetime import date
 
 from seed_helper import uid, d
-from fund_agent.models.capital_call import CapitalCall
-from fund_agent.models.agent_run import AgentRun
+from fund_agent.models import CapitalCall, AgentRun
 
 
 # (call_date, due_date, total_amount, purpose, agent_run_index)

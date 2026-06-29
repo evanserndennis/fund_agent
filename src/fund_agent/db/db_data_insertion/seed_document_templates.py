@@ -1,5 +1,5 @@
 from seed_helper import uid
-from fund_agent.models.document_template import DocumentTemplate
+from fund_agent.models import DocumentTemplate
 
 
 # (doc_type, version, body)

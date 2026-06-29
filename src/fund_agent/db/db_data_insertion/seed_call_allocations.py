@@ -1,8 +1,5 @@
 from seed_helper import uid, d
-from fund_agent.models.call_allocation import CallAllocation
-from fund_agent.models.investor import Investor
-from fund_agent.models.commitment import Commitment
-from fund_agent.models.capital_call import CapitalCall
+from fund_agent.models import CallAllocation, Investor, Commitment, CapitalCall
 
 
 def seed_call_allocations(

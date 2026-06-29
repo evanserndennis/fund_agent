@@ -1,5 +1,5 @@
 from seed_helper import uid, d
-from fund_agent.models.fund import Fund
+from fund_agent.models import Fund
 
 
 def seed_fund(cur) -> Fund:
