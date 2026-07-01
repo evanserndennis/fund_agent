@@ -1,9 +1,9 @@
 import uuid
 import sys
-import os
+from pathlib import Path
 from decimal import Decimal
 
-_src_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..')
+_src_dir = str(Path(__file__).parent.parent.parent)
 if _src_dir not in sys.path:
     sys.path.insert(0, _src_dir)
 
