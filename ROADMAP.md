@@ -20,10 +20,11 @@ Shared primitives the services below all depend on — build once, use everywher
 than letting each service reinvent them.
 
 - [x] Decimal-safe money helpers (`services/money.py`: `money()`, `allocate_pro_rata()`)
-- [ ] Reserve policy — SCHEMA.md leaves "cash above a reserve" undefined; needs a concrete
-      config/constant before determination logic can be written
-- [ ] Point-in-time query helper — replay ledger/capital activity as-of an arbitrary date
-      (backs both balance lookups and the "what did this LP's account look like on X" case)
+- [x] Reserve policy (`services/reserve.py`: fixed $15,000 default, `FUND_RESERVE_AMOUNT`
+      env override — no per-account modeling, matches how the schema tracks cash)
+- [x] Point-in-time query helper (`services/point_in_time.py`: `account_balances_as_of()`
+      replays posted journal lines up to a date; backs both balance lookups and the
+      "what did this LP's account look like on X" case)
 - [ ] Idempotency helper for `(fund_id, call_number)` / `(fund_id, distribution_number)`
 
 ## Milestone 2 — Read-only state services
@@ -83,5 +84,5 @@ than letting each service reinvent them.
 - **Fund strategy**: seed data (`hurdle_rate`, `carry_rate`) points at a PE/VC-style closed-
   end fund — waterfall logic in Milestone 4 should target that cleanly rather than
   generalizing across strategies.
-- **Reserve policy**: no value defined yet anywhere in the schema or seed data — must be
-  decided as part of Milestone 1 before Milestone 3 can be written.
+- **Reserve policy**: resolved as a fixed $15,000 default (`services/reserve.py`), not a
+  per-account model — the schema has no concept of separate bank accounts to sum.
