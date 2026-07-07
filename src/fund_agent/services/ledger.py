@@ -18,3 +18,12 @@ def cash_balance(cur, fund_id: str, as_of: date) -> Decimal:
         fund_id=fund_id,
         as_of=as_of
     )[cash_account_id]
+
+
+def investor_capital_account(cur, fund_id: str, investor_id: str, as_of: date) -> dict:
+    return trial_balance(
+        cur=cur,
+        fund_id=fund_id,
+        as_of=as_of,
+        investor_id=investor_id,
+    )

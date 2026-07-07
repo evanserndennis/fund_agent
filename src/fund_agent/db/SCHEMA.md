@@ -301,11 +301,16 @@ Column lists below are illustrative starting points, not exhaustive. `PK` = prim
 - **Exact-decimal money, never floats.** Use `NUMERIC`/`DECIMAL`. Float rounding errors in a
   system that must tie out to the penny will undermine the demonstrator's credibility.
 
-- **Persist the determination logic's inputs, not just its output.** The two decisions are
-  roughly: a *call* equals forecasted obligations (deals to fund, expenses, fees due) minus
-  available cash above a reserve; a *distribution* equals realizable cash above the reserve,
-  sourced from proceeds. Store the snapshot of balances and obligations in
-  `agent_runs.inputs_snapshot` so a human can see why it landed where it did.
+- **Persist the determination logic's inputs, not just its output.** Both decisions are read
+  off the general ledger, not derived from `investments`: a *call* equals forecasted
+  obligations minus available cash above a reserve, where "forecasted" means future-dated
+  *held* (unposted) journal entries already recorded in the ledger — practitioner practice
+  is to look at the ledger for upcoming calls/distributions already listed there; anything
+  not on the ledger isn't considered. A *distribution* equals realizable cash above the
+  reserve; it does not need to trace back to a realized gain before being proposed, since
+  `distributions.recallable` already exists to correct an over-distribution after the fact.
+  Store the snapshot of balances and obligations in `agent_runs.inputs_snapshot` so a human
+  can see why it landed where it did.
 
 - **Snapshot the allocation basis at issuance.** `call_allocations.basis_pct` is the frozen
   value used that day. The allocation math has real-world wrinkles worth at least stubbing:

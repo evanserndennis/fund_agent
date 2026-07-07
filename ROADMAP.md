@@ -22,22 +22,31 @@ than letting each service reinvent them.
 - [x] Decimal-safe money helpers (`services/money.py`: `money()`, `allocate_pro_rata()`)
 - [x] Reserve policy (`services/reserve.py`: fixed $15,000 default, `FUND_RESERVE_AMOUNT`
       env override — no per-account modeling, matches how the schema tracks cash)
-- [x] Point-in-time query helper (`services/point_in_time.py`: `account_balances_as_of()`
-      replays all journal lines up to a date, held or posted; backs both balance lookups
-      and the "what did this LP's account look like on X" case)
+- [x] Trial balance helper (`services/trial_balance.py`: `trial_balance()` replays all
+      journal lines up to a date, held or posted; backs both balance lookups and the
+      "what did this LP's account look like on X" case — held entries count because a
+      future-dated, not-yet-cash-confirmed call/distribution is still real recorded
+      activity, just not locked yet)
 
 ## Milestone 2 — Read-only state services
 
-- [ ] `services/ledger.py` — cash balance, per-investor capital account (contributed /
-      distributed / unfunded / NAV), trial balance, as-of-date balances
-- [ ] `services/portfolio.py` — forecasted obligations, realizable proceeds, portfolio
-      summary by status
+- [x] `services/ledger.py` — `cash_balance()`: resolves the `"1001"` cash account code to
+      its id and reads the balance off `trial_balance()`
+- [ ] `services/ledger.py` — per-investor capital account (contributed / distributed /
+      unfunded / NAV): `trial_balance()` called with `investor_id` set
+
+`services/portfolio.py` was cut — see note below.
 
 ## Milestone 3 — Determination engine
 
-- [ ] `services/determination.py` — call sizing (obligations − available cash above
-      reserve), distribution sizing (realizable cash above reserve), produces the
-      `inputs_snapshot` + `rationale` payloads for `agent_runs`
+- [ ] `services/determination.py` — reads the ledger via `trial_balance()` with a
+      forward-dated `as_of` (e.g. two weeks out) to see held/future-dated entries already
+      recorded for upcoming calls/distributions; if it isn't on the ledger, it isn't
+      considered — no separate obligations source. Distribution sizing is cash above
+      reserve; `distributions.recallable` is the correction mechanism if a distribution
+      turns out to be needed back, so sizing doesn't need to prove realized-proceeds
+      provenance up front. Produces the `inputs_snapshot` + `rationale` payloads for
+      `agent_runs`
 
 ## Milestone 4 — Allocation engines
 
@@ -88,3 +97,10 @@ than letting each service reinvent them.
   generalizing across strategies.
 - **Reserve policy**: resolved as a fixed $15,000 default (`services/reserve.py`), not a
   per-account model — the schema has no concept of separate bank accounts to sum.
+- **Determination inputs**: resolved as ledger-only, not `investments`-derived. Practitioner
+  guidance: fund admins look at the general ledger for future-dated (held) calls and
+  distributions already recorded there — anything not on the ledger isn't considered.
+  `services/portfolio.py` was built and then removed for this reason; `investments` may
+  still be useful for reporting later, but it isn't a determination input. Also resolved:
+  distribution sizing doesn't need to trace back to realized proceeds before proposing —
+  `distributions.recallable` already exists to correct an over-distribution after the fact.
