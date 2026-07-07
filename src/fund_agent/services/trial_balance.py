@@ -3,7 +3,7 @@ from datetime import date
 from fund_agent.services.money import money
 
 
-def account_balances_as_of(cur, fund_id: str, as_of: date, investor_id: str | None = None) -> dict:
+def trial_balance(cur, fund_id: str, as_of: date, investor_id: str | None = None) -> dict:
     """Signed balance per account, replaying all journal lines on or before `as_of`.
 
     Balances are never stored — they're derived by replaying the ledger up to a

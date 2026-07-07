@@ -23,9 +23,8 @@ than letting each service reinvent them.
 - [x] Reserve policy (`services/reserve.py`: fixed $15,000 default, `FUND_RESERVE_AMOUNT`
       env override — no per-account modeling, matches how the schema tracks cash)
 - [x] Point-in-time query helper (`services/point_in_time.py`: `account_balances_as_of()`
-      replays posted journal lines up to a date; backs both balance lookups and the
-      "what did this LP's account look like on X" case)
-- [ ] Idempotency helper for `(fund_id, call_number)` / `(fund_id, distribution_number)`
+      replays all journal lines up to a date, held or posted; backs both balance lookups
+      and the "what did this LP's account look like on X" case)
 
 ## Milestone 2 — Read-only state services
 
@@ -50,9 +49,12 @@ than letting each service reinvent them.
 ## Milestone 5 — Lifecycle services
 
 - [ ] `services/capital_calls.py` — `draft → proposed → approved → issued → funded` state
-      machine, idempotency-guarded, orchestrates determination + allocation
+      machine, orchestrates determination + allocation. `call_number` assigned inline via
+      `INSERT ... SELECT COALESCE(MAX(call_number), 0) + 1 ... WHERE fund_id = ...` in the
+      same transaction as the insert; the `(fund_id, call_number)` UNIQUE constraint is the
+      backstop against a race, not a separate helper
 - [ ] `services/distributions.py` — `draft → proposed → approved → issued`, orchestrates
-      determination + waterfall
+      determination + waterfall; `distribution_number` assigned the same way
 
 ## Milestone 6 — Agent & governance
 
